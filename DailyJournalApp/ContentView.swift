@@ -40,7 +40,6 @@ struct DailyNewsScene: View {
                                     Text(entry.date, style: .date)
                                         .foregroundColor(.blue)
                                 }
-                                .background(Color.pink)
                                 .contextMenu {
                                     Button("Delete") {
                                         if let index = newsManager.journalEntries.firstIndex(where: { $0.id == entry.id }) {
@@ -48,26 +47,36 @@ struct DailyNewsScene: View {
                                         }
                                     }
                                 }
+                                .padding()
                             }
                             .onMove(perform: moveNews)
                             .onDelete(perform: deleteNews)
+                            .frame(height: 100)
+                            
+                            // MARK: - change rows colours to colourful
+                            .listRowBackground(
+                                Rectangle()
+                                    .fill(Color(.white).opacity(0.85))
+                                    .cornerRadius(10.0)
+                                    .padding(4))
+                            .listRowSeparator(.hidden)
                         }
-                        .background(Color.pink)
+                        
+                        .scrollContentBackground(.hidden)
                         .padding()
                         .onAppear {
                             showEmptyState = newsManager.journalEntries.isEmpty
                         }
-                        .background(Color.pink)
                     }
                     NavigationLink(destination: NotesView().environmentObject(newsManager)) {
                         Text("Add New Note")
                             .padding()
-                            .background(Color.mint)
+                            .background(Color(.white).opacity(0.85))
                             .foregroundColor(.gray)
                             .cornerRadius(8)
                     }
+                    
                 }
-                .background(Color.pink)
                 .navigationBarTitle("My Daily Journal", displayMode: .inline)
             }
         }

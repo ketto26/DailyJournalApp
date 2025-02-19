@@ -10,11 +10,11 @@ import SwiftUI
 struct NotesView: View {
     // MARK: - Properties
     @EnvironmentObject var newsManager: NewsManager
-    //  @State private var title = ""
     @State private var description = ""
     @State private var selectedDate = Date()
     @State private var selectedImage: UIImage?
     @State private var showImagePicker = false
+    @State private var showConfirmationMessage = false
     
     var extractedTitle: String {
         let separators: CharacterSet = ["\n", "."]
@@ -29,7 +29,6 @@ struct NotesView: View {
             Color.pink
                 .edgesIgnoringSafeArea(.all)
             VStack {
-                
                 Text(extractedTitle)
                     .font(.title)
                     .fontWeight(.bold)
@@ -38,27 +37,27 @@ struct NotesView: View {
                 
                 ZStack(alignment: .topLeading) {
                     TextEditor(text: $description)
-                        .foregroundColor(.pink)
+                        .foregroundColor(.white)
+                        .scrollContentBackground(.hidden)
+                        .background(Color.pink)
                         .padding(10)
-                        .frame(minHeight: 200)
-                        .shadow(radius: 5)
+                        .frame(minHeight: 30)
                         .padding([.leading, .trailing, .bottom])
                     
                     if description.isEmpty {
                         Text("Start your daily adventures...")
-                            .foregroundColor(.gray)
+                            .foregroundColor(.white)
                             .padding(.top, 20)
                             .padding(.leading, 40)
                             .font(.body)
                     }
                 }
                 
-                
                 DatePicker("Select Date", selection: $selectedDate, displayedComponents: .date)
                     .datePickerStyle(.compact)
                     .padding()
                 
-                HStack{
+                HStack {
                     Button("Select Photo") {
                         showImagePicker = true
                     }
@@ -77,6 +76,13 @@ struct NotesView: View {
                     }
                     .padding()
                 }
+                
+                if showConfirmationMessage {
+                    Text("News Saved!")
+                        .foregroundColor(.white)
+                        .font(.headline)
+                        .padding()
+                }
             }
             .sheet(isPresented: $showImagePicker) {
                 PhotoPicker(selectedImage: $selectedImage, sourceType: .photoLibrary)
@@ -89,6 +95,10 @@ struct NotesView: View {
         newsManager.addEntry(title: extractedTitle, description: description, date: selectedDate, image: selectedImage)
         description = ""
         selectedImage = nil
+        showConfirmationMessage = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            showConfirmationMessage = false
+        }
     }
 }
 
