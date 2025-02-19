@@ -6,13 +6,17 @@
 //
 
 import Foundation
+import UIKit
 
 class NewsManager: ObservableObject {
+    // MARK: - Properties
     @Published var journalEntries: [JournalEntry] = []
     
-    func addEntry(title: String, description: String, date: Date) {
-        let newEntry = JournalEntry(title: title, description: description, date: date)
-        journalEntries.append(newEntry)
+    
+    // MARK: - Functions
+    func addEntry(title: String, description: String, date: Date, image: UIImage?) {
+        let newEntry = JournalEntry(title: title, description: description, date: date, image: image)
+        journalEntries.insert(newEntry, at: 0)
     }
     
     func deleteEntry(at indexSet: IndexSet) {

@@ -9,72 +9,64 @@ import SwiftUI
 
 
 struct DailyNewsScene: View {
+    // MARK: - Properties
     @State private var title = ""
     @State private var description = ""
     @State private var selectedDate = Date()
     @ObservedObject private var newsManager = NewsManager()
     @State private var showEmptyState = false
     
+    
+    // MARK: - Body
     var body: some View {
-        VStack {
-            TextField("Enter Title", text: $title)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .border(Color.cyan, width: 2)
-                .padding()
-            
-            TextEditor(text: $description)
-                .frame(minHeight: 200)
-                .border(Color.cyan, width: 2)
-                .padding()
-            
-            DatePicker("Select Date", selection: $selectedDate, displayedComponents: .date)
-                .datePickerStyle(.compact)
-                .padding()
-            
-            Button("Save News") {
-                saveNews()
-            }
-            .padding()
-            
-            if newsManager.journalEntries.isEmpty {
-                EmptyStateView()
-                    .padding()
-            } else {
-                List {
-                    ForEach(newsManager.journalEntries) { entry in
-                        VStack(alignment: .leading) {
-                            Text(entry.title)
-                                .font(.headline)
-                            Text(entry.description)
-                                .foregroundColor(.gray)
-                            Text(entry.date, style: .date)
-                                .foregroundColor(.blue)
-                        }
-                        .contextMenu {
-                            Button("Delete") {
-                                if let index = newsManager.journalEntries.firstIndex(where: { $0.id == entry.id }) {
-                                    newsManager.journalEntries.remove(at: index)
+        NavigationStack {
+            VStack {
+                
+                if newsManager.journalEntries.isEmpty {
+                    EmptyStateView()
+                        .padding()
+                } else {
+                    List {
+                        ForEach(newsManager.journalEntries) { entry in
+                            VStack(alignment: .leading) {
+                                Text(entry.title)
+                                    .font(.headline)
+                                Text(entry.description)
+                                    .foregroundColor(.gray)
+                                Text(entry.date, style: .date)
+                                    .foregroundColor(.blue)
+                            }
+                            .contextMenu {
+                                Button("Delete") {
+                                    if let index = newsManager.journalEntries.firstIndex(where: { $0.id == entry.id }) {
+                                        newsManager.journalEntries.remove(at: index)
+                                    }
                                 }
                             }
                         }
+                        .onMove(perform: moveNews)
+                        .onDelete(perform: deleteNews)
                     }
-                    .onMove(perform: moveNews)
-                    .onDelete(perform: deleteNews)
+                    .padding()
+                    .onAppear {
+                        showEmptyState = newsManager.journalEntries.isEmpty
+                    }
                 }
-                .padding()
-                .onAppear {
-                    showEmptyState = newsManager.journalEntries.isEmpty
+                
+                NavigationLink(destination: NotesView().environmentObject(newsManager)) {
+                                    Text("Add New Note")
+                                        .padding()
+                                        .background(Color.blue)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(8)
                 }
             }
+            .navigationBarTitle("My Daily Journal", displayMode: .inline)
         }
     }
     
-    func saveNews() {
-        newsManager.addEntry(title: title, description: description, date: selectedDate)
-        title = ""
-        description = ""
-    }
     
+    // MARK: - Functions
     func deleteNews(at offsets: IndexSet) {
         newsManager.deleteEntry(at: offsets)
         showEmptyState = newsManager.journalEntries.isEmpty
@@ -84,6 +76,8 @@ struct DailyNewsScene: View {
         newsManager.moveEntry(from: source, to: destination)
     }
     
+    
+    // MARK: - Struck
     struct EmptyStateView: View {
         var body: some View {
             Text("List is empty.")
