@@ -20,48 +20,56 @@ struct DailyNewsScene: View {
     // MARK: - Body
     var body: some View {
         NavigationStack {
-            VStack {
+            ZStack {
+                Color.pink
+                    .edgesIgnoringSafeArea(.all)
                 
-                if newsManager.journalEntries.isEmpty {
-                    EmptyStateView()
-                        .padding()
-                } else {
-                    List {
-                        ForEach(newsManager.journalEntries) { entry in
-                            VStack(alignment: .leading) {
-                                Text(entry.title)
-                                    .font(.headline)
-                                Text(entry.description)
-                                    .foregroundColor(.gray)
-                                Text(entry.date, style: .date)
-                                    .foregroundColor(.blue)
-                            }
-                            .contextMenu {
-                                Button("Delete") {
-                                    if let index = newsManager.journalEntries.firstIndex(where: { $0.id == entry.id }) {
-                                        newsManager.journalEntries.remove(at: index)
+                VStack {
+                    
+                    if newsManager.journalEntries.isEmpty {
+                        EmptyStateView()
+                            .padding()
+                    } else {
+                        List {
+                            ForEach(newsManager.journalEntries) { entry in
+                                VStack(alignment: .leading) {
+                                    Text(entry.title)
+                                        .font(.headline)
+                                    Text(entry.description)
+                                        .foregroundColor(.gray)
+                                    Text(entry.date, style: .date)
+                                        .foregroundColor(.blue)
+                                }
+                                .background(Color.pink)
+                                .contextMenu {
+                                    Button("Delete") {
+                                        if let index = newsManager.journalEntries.firstIndex(where: { $0.id == entry.id }) {
+                                            newsManager.journalEntries.remove(at: index)
+                                        }
                                     }
                                 }
                             }
+                            .onMove(perform: moveNews)
+                            .onDelete(perform: deleteNews)
                         }
-                        .onMove(perform: moveNews)
-                        .onDelete(perform: deleteNews)
+                        .background(Color.pink)
+                        .padding()
+                        .onAppear {
+                            showEmptyState = newsManager.journalEntries.isEmpty
+                        }
+                        .background(Color.pink)
                     }
-                    .padding()
-                    .onAppear {
-                        showEmptyState = newsManager.journalEntries.isEmpty
+                    NavigationLink(destination: NotesView().environmentObject(newsManager)) {
+                        Text("Add New Note")
+                            .padding()
+                            .background(Color.mint)
+                            .foregroundColor(.gray)
+                            .cornerRadius(8)
                     }
                 }
-                
-                NavigationLink(destination: NotesView().environmentObject(newsManager)) {
-                                    Text("Add New Note")
-                                        .padding()
-                                        .background(Color.blue)
-                                        .foregroundColor(.white)
-                                        .cornerRadius(8)
-                }
+                .background(Color.pink)
+                .navigationBarTitle("My Daily Journal", displayMode: .inline)
             }
-            .navigationBarTitle("My Daily Journal", displayMode: .inline)
         }
     }
     
@@ -81,7 +89,7 @@ struct DailyNewsScene: View {
     struct EmptyStateView: View {
         var body: some View {
             Text("List is empty.")
-                .foregroundColor(.gray)
+                .foregroundColor(.white)
         }
     }
 }
