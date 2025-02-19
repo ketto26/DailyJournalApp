@@ -13,6 +13,8 @@
 		0C5652E32B33216000778164 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0C5652E22B33216000778164 /* Preview Assets.xcassets */; };
 		0C5652EA2B3394BA00778164 /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5652E92B3394BA00778164 /* ViewModel.swift */; };
 		0C5652EC2B33957800778164 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5652EB2B33957800778164 /* Model.swift */; };
+		0C713EA82D660767000C610C /* NotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C713EA72D660767000C610C /* NotesView.swift */; };
+		0C713EAA2D6610FD000C610C /* PhotoPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C713EA92D6610FD000C610C /* PhotoPicker.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,6 +25,8 @@
 		0C5652E22B33216000778164 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		0C5652E92B3394BA00778164 /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
 		0C5652EB2B33957800778164 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
+		0C713EA72D660767000C610C /* NotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesView.swift; sourceTree = "<group>"; };
+		0C713EA92D6610FD000C610C /* PhotoPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPicker.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,6 +63,8 @@
 				0C5652EB2B33957800778164 /* Model.swift */,
 				0C5652E92B3394BA00778164 /* ViewModel.swift */,
 				0C5652DD2B33215E00778164 /* ContentView.swift */,
+				0C713EA72D660767000C610C /* NotesView.swift */,
+				0C713EA92D6610FD000C610C /* PhotoPicker.swift */,
 				0C5652DF2B33216000778164 /* Assets.xcassets */,
 				0C5652E12B33216000778164 /* Preview Content */,
 			);
@@ -145,6 +151,8 @@
 			files = (
 				0C5652EA2B3394BA00778164 /* ViewModel.swift in Sources */,
 				0C5652DE2B33215E00778164 /* ContentView.swift in Sources */,
+				0C713EAA2D6610FD000C610C /* PhotoPicker.swift in Sources */,
+				0C713EA82D660767000C610C /* NotesView.swift in Sources */,
 				0C5652DC2B33215E00778164 /* DailyJournalAppApp.swift in Sources */,
 				0C5652EC2B33957800778164 /* Model.swift in Sources */,
 			);
