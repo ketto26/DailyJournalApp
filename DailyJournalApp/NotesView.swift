@@ -10,73 +10,83 @@ import SwiftUI
 struct NotesView: View {
     // MARK: - Properties
     @EnvironmentObject var newsManager: NewsManager
-  //  @State private var title = ""
     @State private var description = ""
     @State private var selectedDate = Date()
     @State private var selectedImage: UIImage?
     @State private var showImagePicker = false
+    @State private var showConfirmationMessage = false
     
     var extractedTitle: String {
         let separators: CharacterSet = ["\n", "."]
         let sentences = description.components(separatedBy: separators)
-                .filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+            .filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
         return sentences.first?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "Untitled"
     }
     
     // MARK: - Body
     var body: some View {
-        VStack {
-            
-            Text(extractedTitle)
-                .font(.title)
-                .fontWeight(.bold)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding([.leading, .trailing, .top])
-            
-            ZStack(alignment: .topLeading) {
-                TextEditor(text: $description)
-                    .foregroundColor(.primary)
-                    .padding(10)
-                    .frame(minHeight: 200)
-                    .shadow(radius: 5)
-                    .padding([.leading, .trailing, .bottom])
+        ZStack {
+            Color.pink
+                .edgesIgnoringSafeArea(.all)
+            VStack {
+                Text(extractedTitle)
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding([.leading, .trailing, .top])
                 
-                if description.isEmpty {
-                    Text("Start your daily adventures...")
-                        .foregroundColor(.gray)
-                        .padding(.top, 20)
-                        .padding(.leading, 40)
-                        .font(.body)
+                ZStack(alignment: .topLeading) {
+                    TextEditor(text: $description)
+                        .foregroundColor(.white)
+                        .scrollContentBackground(.hidden)
+                        .background(Color.pink)
+                        .padding(10)
+                        .frame(minHeight: 30)
+                        .padding([.leading, .trailing, .bottom])
+                    
+                    if description.isEmpty {
+                        Text("Start your daily adventures...")
+                            .foregroundColor(.white)
+                            .padding(.top, 20)
+                            .padding(.leading, 40)
+                            .font(.body)
+                    }
                 }
-            }
                 
-            
-            DatePicker("Select Date", selection: $selectedDate, displayedComponents: .date)
-                .datePickerStyle(.compact)
-                .padding()
-            
-            HStack{
-                Button("Select Photo") {
-                    showImagePicker = true
+                DatePicker("Select Date", selection: $selectedDate, displayedComponents: .date)
+                    .datePickerStyle(.compact)
+                    .padding()
+                
+                HStack {
+                    Button("Select Photo") {
+                        showImagePicker = true
+                    }
+                    .padding()
+                    
+                    if let selectedImage = selectedImage {
+                        Image(uiImage: selectedImage)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 200)
+                            .padding()
+                    }
+                    
+                    Button("Save News") {
+                        saveNews()
+                    }
+                    .padding()
                 }
-                .padding()
                 
-                if let selectedImage = selectedImage {
-                    Image(uiImage: selectedImage)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 200)
+                if showConfirmationMessage {
+                    Text("News Saved!")
+                        .foregroundColor(.white)
+                        .font(.headline)
                         .padding()
                 }
-                
-                Button("Save News") {
-                    saveNews()
-                }
-                .padding()
             }
-        }
-        .sheet(isPresented: $showImagePicker) {
-            PhotoPicker(selectedImage: $selectedImage, sourceType: .photoLibrary)
+            .sheet(isPresented: $showImagePicker) {
+                PhotoPicker(selectedImage: $selectedImage, sourceType: .photoLibrary)
+            }
         }
     }
     
@@ -85,6 +95,10 @@ struct NotesView: View {
         newsManager.addEntry(title: extractedTitle, description: description, date: selectedDate, image: selectedImage)
         description = ""
         selectedImage = nil
+        showConfirmationMessage = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            showConfirmationMessage = false
+        }
     }
 }
 
