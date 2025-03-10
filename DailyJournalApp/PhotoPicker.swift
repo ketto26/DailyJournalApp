@@ -6,44 +6,54 @@
 //
 
 import SwiftUI
-import UIKit
+import PhotosUI
 
-struct PhotoPicker: UIViewControllerRepresentable {
-    // MARK: - Properties
-    @Binding var selectedImage: UIImage?
+struct PhotoPicker: View {
+    @Binding var selectedImages: [UIImage]
     var sourceType: UIImagePickerController.SourceType
     
-    // MARK: - Functions
+    var body: some View {
+        PHPickerViewControllerRepresentable(selectedImages: $selectedImages)
+    }
+}
+
+struct PHPickerViewControllerRepresentable: UIViewControllerRepresentable {
+    @Binding var selectedImages: [UIImage]
+    
     func makeCoordinator() -> Coordinator {
-        return Coordinator(parent: self)
+        return Coordinator(selectedImages: $selectedImages)
     }
     
-    func makeUIViewController(context: Context) -> UIImagePickerController {
-        let picker = UIImagePickerController()
-        picker.sourceType = sourceType
+    func makeUIViewController(context: Context) -> PHPickerViewController {
+        var config = PHPickerConfiguration()
+        config.selectionLimit = 0 // Unlimited selection
+        config.filter = .images
+        let picker = PHPickerViewController(configuration: config)
         picker.delegate = context.coordinator
         return picker
     }
     
-    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
     
-    // MARK: - Class
-    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-        var parent: PhotoPicker
+    class Coordinator: NSObject, PHPickerViewControllerDelegate {
+        @Binding var selectedImages: [UIImage]
         
-        init(parent: PhotoPicker) {
-            self.parent = parent
+        init(selectedImages: Binding<[UIImage]>) {
+            _selectedImages = selectedImages
         }
         
-        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-            if let image = info[.originalImage] as? UIImage {
-                parent.selectedImage = image
+        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+            picker.dismiss(animated: true)
+            
+            for result in results {
+                result.itemProvider.loadObject(ofClass: UIImage.self) { (object, error) in
+                    if let image = object as? UIImage {
+                        DispatchQueue.main.async {
+                            self.selectedImages.append(image)
+                        }
+                    }
+                }
             }
-            picker.dismiss(animated: true)
-        }
-        
-        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-            picker.dismiss(animated: true)
         }
     }
 }

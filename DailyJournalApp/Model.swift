@@ -10,17 +10,17 @@ import UIKit
 
 struct JournalEntry: Identifiable {
     // MARK: - Properties
-    let id = UUID()
+    let id = UUID() // Ensures each entry is uniquely identifiable
     var title: String
     var description: String
     var date: Date
-    var image: UIImage? 
+    var images: [UIImage]? // Modified to store an array of images
     
     // MARK: - Initialization
-    init(title: String, description: String, date: Date, image: UIImage? = nil) {
+    init(title: String, description: String, date: Date, images: [UIImage]? = nil) {
         self.title = title
         self.description = description
         self.date = date
-        self.image = image
+        self.images = images
     }
 }
