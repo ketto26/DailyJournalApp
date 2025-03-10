@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 struct DailyNewsScene: View {
     // MARK: - Properties
     @State private var title = ""
@@ -15,17 +14,17 @@ struct DailyNewsScene: View {
     @State private var selectedDate = Date()
     @ObservedObject private var newsManager = NewsManager()
     @State private var showEmptyState = false
-    
-    
+    @State private var selectedEntryForEditing: JournalEntry? // Store selected entry for editing
+    @State private var showEditor = false // Control navigation
+
     // MARK: - Body
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.pink
-                    .edgesIgnoringSafeArea(.all)
+                peachCustomColour
+                    .ignoresSafeArea()
                 
                 VStack {
-                    
                     if newsManager.journalEntries.isEmpty {
                         EmptyStateView()
                             .padding()
@@ -40,6 +39,10 @@ struct DailyNewsScene: View {
                                     Text(entry.date, style: .date)
                                         .foregroundColor(.blue)
                                 }
+                                .onTapGesture {
+                                    selectedEntryForEditing = entry
+                                    showEditor = true
+                                }
                                 .contextMenu {
                                     Button("Delete") {
                                         if let index = newsManager.journalEntries.firstIndex(where: { $0.id == entry.id }) {
@@ -52,8 +55,6 @@ struct DailyNewsScene: View {
                             .onMove(perform: moveNews)
                             .onDelete(perform: deleteNews)
                             .frame(height: 100)
-                            
-                            // MARK: - change rows colours to colourful
                             .listRowBackground(
                                 Rectangle()
                                     .fill(Color(.white).opacity(0.85))
@@ -61,40 +62,50 @@ struct DailyNewsScene: View {
                                     .padding(4))
                             .listRowSeparator(.hidden)
                         }
-                        
                         .scrollContentBackground(.hidden)
                         .padding()
                         .onAppear {
                             showEmptyState = newsManager.journalEntries.isEmpty
                         }
                     }
-                    NavigationLink(destination: NotesView().environmentObject(newsManager)) {
-                        Text("Add New Note")
-                            .padding()
-                            .background(Color(.white).opacity(0.85))
-                            .foregroundColor(.gray)
-                            .cornerRadius(8)
-                    }
-                    
                 }
-                .navigationBarTitle("My Daily Journal", displayMode: .inline)
+                .navigationBarTitle("", displayMode: .inline)
+
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        NavigationLink(destination: NotesView().environmentObject(newsManager)) {
+                            Image(systemName: "plus")
+                                .font(.system(size: 24))
+                                .foregroundColor(.white)
+                                .padding()
+                                .background(babyMintColour)
+                                .clipShape(Circle())
+                                .shadow(radius: 4)
+                        }
+                        .padding(.trailing, 20)
+                        .padding(.bottom, 20)
+                    }
+                }
+            }
+            .sheet(item: $selectedEntryForEditing) { entry in
+                NotesView(entryToEdit: entry).environmentObject(newsManager)
             }
         }
     }
-    
-    
+
     // MARK: - Functions
     func deleteNews(at offsets: IndexSet) {
         newsManager.deleteEntry(at: offsets)
         showEmptyState = newsManager.journalEntries.isEmpty
     }
-    
+
     func moveNews(from source: IndexSet, to destination: Int) {
         newsManager.moveEntry(from: source, to: destination)
     }
-    
-    
-    // MARK: - Struck
+
+    // MARK: - Struct
     struct EmptyStateView: View {
         var body: some View {
             Text("List is empty.")
@@ -102,6 +113,8 @@ struct DailyNewsScene: View {
         }
     }
 }
+
+
 
 
 #Preview {

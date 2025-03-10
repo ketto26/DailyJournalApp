@@ -12,10 +12,9 @@ class NewsManager: ObservableObject {
     // MARK: - Properties
     @Published var journalEntries: [JournalEntry] = []
     
-    
     // MARK: - Functions
-    func addEntry(title: String, description: String, date: Date, image: UIImage?) {
-        let newEntry = JournalEntry(title: title, description: description, date: date, image: image)
+    func addEntry(title: String, description: String, date: Date, images: [UIImage]?) {
+        let newEntry = JournalEntry(title: title, description: description, date: date, images: images)
         journalEntries.insert(newEntry, at: 0)
     }
     
@@ -24,6 +23,6 @@ class NewsManager: ObservableObject {
     }
     
     func moveEntry(from source: IndexSet, to destination: Int) {
-            journalEntries.move(fromOffsets: source, toOffset: destination)
-        }
+        journalEntries.move(fromOffsets: source, toOffset: destination)
+    }
 }

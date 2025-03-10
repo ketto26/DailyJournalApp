@@ -10,73 +10,84 @@ import SwiftUI
 struct NotesView: View {
     // MARK: - Properties
     @EnvironmentObject var newsManager: NewsManager
-    @State private var description = ""
-    @State private var selectedDate = Date()
-    @State private var selectedImage: UIImage?
+    var entryToEdit: JournalEntry? // New parameter for editing existing entry
+    @State private var description: String
+    @State private var selectedImages: [UIImage]
     @State private var showImagePicker = false
     @State private var showConfirmationMessage = false
-    
-    var extractedTitle: String {
+    @State private var selectedImageForPreview: UIImage?
+
+    // Extract title from description
+    private var extractedTitle: String {
         let separators: CharacterSet = ["\n", "."]
         let sentences = description.components(separatedBy: separators)
             .filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
         return sentences.first?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "Untitled"
     }
-    
+
+    // MARK: - Initializer
+    init(entryToEdit: JournalEntry? = nil) {
+        _description = State(initialValue: entryToEdit?.description ?? "")
+        _selectedImages = State(initialValue: entryToEdit?.images ?? [])
+        self.entryToEdit = entryToEdit
+    }
+
     // MARK: - Body
     var body: some View {
         ZStack {
-            Color.pink
+            peachCustomColour
                 .edgesIgnoringSafeArea(.all)
             VStack {
-                Text(extractedTitle)
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding([.leading, .trailing, .top])
-                
                 ZStack(alignment: .topLeading) {
-                    TextEditor(text: $description)
-                        .foregroundColor(.white)
-                        .scrollContentBackground(.hidden)
-                        .background(Color.pink)
-                        .padding(10)
-                        .frame(minHeight: 30)
-                        .padding([.leading, .trailing, .bottom])
-                    
                     if description.isEmpty {
                         Text("Start your daily adventures...")
                             .foregroundColor(.white)
                             .padding(.top, 20)
                             .padding(.leading, 40)
                             .font(.body)
+                            .opacity(0.5)
+                    }
+
+                    TextEditor(text: $description)
+                        .foregroundColor(.white)
+                        .scrollContentBackground(.hidden)
+                        .background(.clear)
+                        .padding(10)
+                        .frame(minHeight: 30)
+                        .padding([.leading, .trailing, .bottom])
+                }
+
+                ScrollView(.horizontal) {
+                    HStack {
+                        ForEach(selectedImages, id: \.self) { image in
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 150)
+                                .padding(5)
+                                .onTapGesture {
+                                    selectedImageForPreview = image
+                                }
+                        }
                     }
                 }
-                
-                DatePicker("Select Date", selection: $selectedDate, displayedComponents: .date)
-                    .datePickerStyle(.compact)
-                    .padding()
-                
+
                 HStack {
-                    Button("Select Photo") {
+                    Button("Select Photos") {
                         showImagePicker = true
                     }
                     .padding()
-                    
-                    if let selectedImage = selectedImage {
-                        Image(uiImage: selectedImage)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 200)
-                            .padding()
-                    }
-                    
+
                     Button("Save News") {
                         saveNews()
                     }
                     .padding()
                 }
-                
+                .tint(.white)
+
+                Spacer()
+                Spacer()
+
                 if showConfirmationMessage {
                     Text("News Saved!")
                         .foregroundColor(.white)
@@ -85,22 +96,36 @@ struct NotesView: View {
                 }
             }
             .sheet(isPresented: $showImagePicker) {
-                PhotoPicker(selectedImage: $selectedImage, sourceType: .photoLibrary)
+                PhotoPicker(selectedImages: $selectedImages, sourceType: .photoLibrary)
             }
         }
     }
-    
+
     // MARK: - Functions
     func saveNews() {
-        newsManager.addEntry(title: extractedTitle, description: description, date: selectedDate, image: selectedImage)
+        let currentDate = Date()
+
+        if let existingEntry = entryToEdit, let index = newsManager.journalEntries.firstIndex(where: { $0.id == existingEntry.id }) {
+            // Editing existing entry
+            newsManager.journalEntries[index].title = extractedTitle
+            newsManager.journalEntries[index].description = description
+            newsManager.journalEntries[index].date = currentDate
+            newsManager.journalEntries[index].images = selectedImages
+        } else {
+            // Creating new entry
+            newsManager.addEntry(title: extractedTitle, description: description, date: currentDate, images: selectedImages)
+        }
+
         description = ""
-        selectedImage = nil
+        selectedImages = []
         showConfirmationMessage = true
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             showConfirmationMessage = false
         }
     }
 }
+
 
 
 

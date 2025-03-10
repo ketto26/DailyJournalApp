@@ -11,7 +11,7 @@ import SwiftUI
 struct DailyJournalAppApp: App {
     var body: some Scene {
         WindowGroup {
-            DailyNewsScene()
+            MainView()
         }
     }
 }
